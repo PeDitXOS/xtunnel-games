@@ -1,0 +1,77 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Xtunnel Games",
+  "version": "0.1.0",
+  "identifier": "com.peditxos.xtunnel-games",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Xtunnel Games",
+        "width": 640,
+        "height": 800,
+        "minWidth": 580,
+        "minHeight": 680,
+        "resizable": false,
+        "fullscreen": false,
+        "center": true,
+        "decorations": false,
+        "transparent": true,
+        "visible": false,
+        "label": "main"
+      }
+    ],
+    "security": {
+      "csp": null
+    },
+    "macOSPrivateApi": true
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "http://timestamp.digicert.com",
+      "tsp": false,
+      "webviewInstallMode": {
+        "type": "embedBootstrapper",
+        "silent": true
+      },
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "installerHeaderIcon": "icons/icon.ico",
+        "licenseFile": null,
+        "allowToChangeInstallDirectory": true,
+        "oneClick": false,
+        "perMachine": true,
+        "displayLanguageSelector": true
+      }
+    }
+  },
+  "plugins": {
+    "store": {
+      "filename": "config.json"
+    },
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://github.com/peditxos/xtunnel-games/releases/latest/download/latest.json"
+      ],
+      "dialog": true,
+      "pubkey": ""
+    }
+  }
+}

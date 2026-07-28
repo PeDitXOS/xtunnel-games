@@ -1,0 +1,165 @@
+'use client'
+
+import { useState } from 'react'
+import { motion } from 'motion/react'
+import { cn } from '@/lib/utils'
+import { ChevronDown, Settings2, Info, Gamepad2, Globe, Download, MessageSquare, Zap } from 'lucide-react'
+import { useAppStore } from '@/store/appStore'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
+
+const PROTOCOL_OPTIONS = [
+  { value: 'auto', label: 'خودکار (پیشنهادی)' },
+  { value: 'masque', label: 'MASQUE (HTTP/3)' },
+  { value: 'wireguard', label: 'WireGuard' },
+  { value: 'gool', label: 'WARP-in-WARP (gool)' },
+]
+
+const SCAN_MODE_OPTIONS = [
+  { value: 'turbo', label: 'Turbo (سریع‌ترین)' },
+  { value: 'balanced', label: 'Balanced (متعادل)' },
+  { value: 'thorough', label: 'Thorough (دقیق)' },
+  { value: 'stealth', label: 'Stealth (مخفی‌ترین)' },
+]
+
+const IP_VERSION_OPTIONS = [
+  { value: 'v4', label: 'IPv4' },
+  { value: 'v6', label: 'IPv6' },
+  { value: 'both', label: 'هر دو' },
+]
+
+export function AdvancedPanel() {
+  const { config, setConfig, status, logs } = useAppStore()
+  const [open, setOpen] = useState(false)
+
+  const locked = status.state !== 'idle' && status.state !== 'error'
+
+  return (
+    <TooltipProvider>
+      <Collapsible open={open} onOpenChange={setOpen}>
+        <CollapsibleTrigger className="w-full flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground hover:text-foreground rounded-md">
+          <Settings2 className="h-4 w-4" />
+          تنظیمات پیشرفته
+          <ChevronDown
+            className={cn(
+              'h-4 w-4 transition-transform duration-150',
+              open ? 'rotate-180' : ''
+            )}
+          />
+        </CollapsibleTrigger>
+
+        <CollapsibleContent className="overflow-hidden data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-bottom-2 data-[state=open]:duration-200">
+          <div className="space-y-4 pb-2">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                پروتکل
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-3.5 w-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    MASQUETعله‌سی است که ترافیک را به صورت HTTPS نشان می‌دهد. WireGuard سبک‌تر و سریع‌تر است. gool دو تونل WireGuard تودرتو می‌سازد.
+                  </TooltipContent>
+                </Tooltip>
+              </label>
+              <Select value={config.protocol} onValueChange={v => setConfig({ protocol: v as any })} disabled={locked}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="انتخاب پروتکل" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PROTOCOL_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                حالت اسکن
+                <Tooltip>
+                  <TooltipTrigger asChild><Info className="h-3.5 w-3.5" /></TooltipTrigger>
+                  <TooltipContent>
+                    Turbo: سریع‌ترین اما بیشترین ترافیک probe. Balanced: پیش‌فرض مناسب. Thorough: کامل‌تر. Stealth: مخفی‌ترین.
+                  </TooltipContent>
+                </Tooltip>
+              </label>
+              <Select value={config.scanMode} onValueChange={v => setConfig({ scanMode: v as any })} disabled={locked}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="انتخاب حالت" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SCAN_MODE_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                نسخه IP
+                <Tooltip>
+                  <TooltipTrigger asChild><Info className="h-3.5 w-3.5" /></TooltipTrigger>
+                  <TooltipContent>
+                    کدام خانواده آدرس برای یافتن مسیر استفاده شود. IPv4 پیش‌فرض امن است.
+                  </TooltipContent>
+                </Tooltip>
+              </label>
+              <Select value={config.ipVersion} onValueChange={v => setConfig({ ipVersion: v as any })} disabled={locked}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="انتخاب نسخه IP" />
+                </SelectTrigger>
+                <SelectContent>
+                  {IP_VERSION_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center justify-between pt-2 border-t">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                اتصال سریع
+                <Tooltip>
+                  <TooltipTrigger asChild><Info className="h-3.5 w-3.5" /></TooltipTrigger>
+                  <TooltipContent>
+                    آخرین گیت‌وی کارآمد را ذخیره کرده و در اتصال بعدی ابتدا آن را تست می‌کند، اگر کار کند اسکن کامل را رد می‌کند.
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <Switch
+                checked={config.quickReconnect}
+                onCheckedChange={v => setConfig({ quickReconnect: v })}
+                disabled={locked}
+              />
+            </div>
+
+            <div className="space-y-2 pt-2 border-t">
+              <div className="flex items-center gap-2">
+                <div className="h-px flex-1 bg-border" />
+                <span className="text-[10px] tracking-widest text-muted-foreground uppercase">لاگ‌ها</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+
+              <div className="max-h-64 overflow-y-auto rounded-md bg-black/20 p-2 font-mono text-xs text-muted-foreground border border-white/10">
+                {logs.length === 0 ? (
+                  <p className="text-muted-foreground">هیچ خروجی‌ای هنوز وجود ندارد.</p>
+                ) : (
+                  logs.map((l, i) => (
+                    <p key={i} className="whitespace-pre-wrap font-mono">{l}</p>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </TooltipProvider>
+  )
+}
+
+// Add imports at bottom
+import { PROTOCOL_OPTIONS, SCAN_MODE_OPTIONS, IP_VERSION_OPTIONS } from './constants'
