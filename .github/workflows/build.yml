@@ -130,7 +130,8 @@ jobs:
           $zipPath = "$env:RUNNER_TEMP\wintun.zip"
           Invoke-WebRequest -Uri $wintunUrl -OutFile $zipPath
           Expand-Archive -Path $zipPath -DestinationPath "$env:RUNNER_TEMP\wintun" -Force
-          Copy-Item "$env:RUNNER_TEMP\wintun\bin\amd64\wintun.dll" "src-tauri\binaries\wintun.dll" -Force
+          Get-ChildItem -Recurse "$env:RUNNER_TEMP\wintun" | Select-Object FullName
+          Copy-Item "$env:RUNNER_TEMP\wintun\wintun\bin\amd64\wintun.dll" "src-tauri\binaries\wintun.dll" -Force
           Write-Host "wintun.dll bundled"
 
       - name: Download WinDivert
