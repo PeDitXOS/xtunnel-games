@@ -117,7 +117,7 @@ jobs:
 
       - name: Download Xray binary
         run: |
-          $xrayUrl = "https://github.com/XTLS/Xray-core/releases/download/v24.5.30/Xray-windows-64.zip"
+          $xrayUrl = "https://github.com/XTLS/Xray-core/releases/download/v26.3.27/Xray-windows-64.zip"
           $zipPath = "$env:RUNNER_TEMP\xray-windows.zip"
           Invoke-WebRequest -Uri $xrayUrl -OutFile $zipPath
           Expand-Archive -Path $zipPath -DestinationPath "$env:RUNNER_TEMP\xray" -Force
