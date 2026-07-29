@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppInfo {
@@ -10,7 +9,7 @@ pub struct AppInfo {
     pub category: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AetherConfig {
     pub protocol: String,
     pub scan_mode: String,
@@ -18,8 +17,8 @@ pub struct AetherConfig {
     pub quick_reconnect: bool,
 }
 
-impl AetherConfig {
-    pub fn default() -> Self {
+impl Default for AetherConfig {
+    fn default() -> Self {
         Self {
             protocol: "auto".into(),
             scan_mode: "balanced".into(),
@@ -27,12 +26,11 @@ impl AetherConfig {
             quick_reconnect: true,
         }
     }
+}
 
+impl AetherConfig {
     pub fn to_cli_args(&self) -> Vec<String> {
-        let mut args = vec![
-            "--bind".into(),
-            "127.0.0.1:1819".into(),
-        ];
+        let mut args = vec!["--bind".into(), "127.0.0.1:1819".into()];
 
         match self.protocol.as_str() {
             "masque" => args.push("--masque".into()),
@@ -72,10 +70,42 @@ pub struct ConnectionStatus {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SelectedApps(pub Vec<String>);
+pub struct V2RayConfig {
+    pub config: String,
+    pub auto_tune_mtu: bool,
+    pub enable_dns_optimization: bool,
+    pub protocol: String,
+}
 
-impl Default for SelectedApps {
-    fn default() -> Self {
-        Self(vec![])
-    }
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct WireGuardConfig {
+    pub config: String,
+    pub config_path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OpenVpnConfig {
+    pub config_path: String,
+    pub username: String,
+    pub password: String,
+    pub private_key_password: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SocksConfig {
+    pub protocol: String,
+    pub server: String,
+    pub port: u16,
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum ProviderConfig {
+    Aether(AetherConfig),
+    V2Ray(V2RayConfig),
+    WireGuard(WireGuardConfig),
+    OpenVpn(OpenVpnConfig),
+    Socks(SocksConfig),
 }

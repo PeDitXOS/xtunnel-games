@@ -1,5 +1,5 @@
 use crate::error::Result;
-use crate::models::OpenVpnConfig;
+use crate::models::{ConnectionStatus, OpenVpnConfig};
 use crate::providers::Provider;
 use parking_lot::Mutex;
 use std::process::Stdio;
@@ -7,7 +7,6 @@ use std::sync::Arc;
 use tauri::{AppHandle, Emitter};
 use tokio::process::Command;
 use tokio::sync::Mutex as TokioMutex;
-use tokio::time::{sleep, Duration};
 
 pub struct OpenVpnProvider {
     process: Arc<TokioMutex<Option<tokio::process::Child>>>,
@@ -25,33 +24,51 @@ impl OpenVpnProvider {
 
 #[async_trait::async_trait]
 impl Provider for OpenVpnProvider {
-    fn id(&self) -> &str { "openvpn" }
-    fn name(&self) -> &str { "OpenVPN" }
-    fn description(&self) -> &str { "OpenVPN Community" }
-    fn requires_server(&self) -> bool { true }
+    fn id(&self) -> &str {
+        "openvpn"
+    }
+    fn name(&self) -> &str {
+        "OpenVPN"
+    }
+    fn description(&self) -> &str {
+        "OpenVPN Community"
+    }
+    fn requires_server(&self) -> bool {
+        true
+    }
 
     async fn connect(
         &self,
         pids: Vec<u32>,
-        config: crate::providers::ProviderConfig,
+        config: crate::models::ProviderConfig,
         state: tauri::State<'_, crate::AppState>,
         app: AppHandle,
     ) -> Result<()> {
         let cfg = match config {
-            crate::providers::ProviderConfig::OpenVpn(c) => c,
-            _ => return Err(crate::error::XtunnelError::Config("Invalid config for OpenVPN".into())),
+            crate::models::ProviderConfig::OpenVpn(c) => c,
+            _ => {
+                return Err(crate::error::XtunnelError::Config(
+                    "Invalid config for OpenVPN".into(),
+                ))
+            }
         };
 
         let openvpn_exe = find_openvpn_exe()?;
-        
+
         let mut cmd = Command::new(&openvpn_exe)
             .args([
-                "--config", &cfg.config_path,
-                "--auth-user-pass", &format!("{}", cfg.username),
-                "--auth-retry", "nointeract",
+                "--config",
+                &cfg.config_path,
+                "--auth-user-pass",
+                &cfg.username,
+                "--auth-retry",
+                "nointeract",
                 "--route-nopull",
-                "--pull-filter", "ignore", "redirect-gateway",
-                "--script-security", "2",
+                "--pull-filter",
+                "ignore",
+                "redirect-gateway",
+                "--script-security",
+                "2",
             ])
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
@@ -61,13 +78,14 @@ impl Provider for OpenVpnProvider {
         *self.process.lock().await = Some(cmd);
 
         // Wait for TUN interface
-        let _ = wait_for_openvpn_interface().await?;
+        tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
 
-        // Get SOCKS port from openvpn management interface or config
         let socks_port = 2080;
 
-        // Start WinDivert tunnel
-        crate::tunnel::start_tunnel(pids, socks_port, state.clone(), app.clone()).await?;
+        *state.provider_socks_port.lock() = socks_port;
+        *state.current_provider.lock() = "openvpn".into();
+
+        crate::tunnel::start_tunnel(pids, socks_port, &state, app).await?;
 
         Ok(())
     }
@@ -79,8 +97,8 @@ impl Provider for OpenVpnProvider {
         Ok(())
     }
 
-    fn status(&self) -> crate::models::ConnectionStatus {
-        crate::models::ConnectionStatus {
+    fn status(&self) -> ConnectionStatus {
+        ConnectionStatus {
             state: "idle".into(),
             message: "OpenVPN ready".into(),
             socks_port: None,
@@ -101,12 +119,7 @@ fn find_openvpn_exe() -> Result<String> {
             return Ok(p.to_string());
         }
     }
-    Err(crate::error::XtunnelError::BinaryNotFound("OpenVPN not found".into()))
-}
-
-async fn wait_for_openvpn_interface() -> Result<u32> {
-    for _ in 0..30 {
-        tokio::time::sleep(Duration::from_secs(1)).await;
-    }
-    Ok(0)
+    Err(crate::error::XtunnelError::BinaryNotFound(
+        "OpenVPN not found".into(),
+    ))
 }

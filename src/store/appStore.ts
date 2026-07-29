@@ -34,6 +34,7 @@ interface AppState {
   selectedApps: string[]
   config: AetherConfig
   scanning: boolean
+  logs: string[]
   _unlisten: UnlistenFn | null
 
   initialize: () => Promise<void>
@@ -43,6 +44,7 @@ interface AppState {
   connect: () => Promise<void>
   disconnect: () => Promise<void>
   retryAfterSidecarError: () => void
+  addLog: (msg: string) => void
   _setUnlisten: (fn: UnlistenFn) => void
 }
 
@@ -62,12 +64,14 @@ export const useAppStore = create<AppState>()(
       selectedApps: [],
       config: defaultConfig,
       scanning: false,
+      logs: [],
       _unlisten: null,
 
       initialize: async () => {
         try {
-          const unlisten = await listen('aether://status', (event: any) => {
+          const unlisten = await listen<ConnectionStatus>('aether://status', (event) => {
             set({ status: event.payload })
+            get().addLog(`[${new Date().toLocaleTimeString('fa-IR')}] ${event.payload.message}`)
           })
           set({ _unlisten: unlisten })
         } catch (e) {
@@ -82,8 +86,10 @@ export const useAppStore = create<AppState>()(
         try {
           const apps = await invoke<AppInfo[]>('scan_apps')
           set({ apps })
+          get().addLog(`[${new Date().toLocaleTimeString('fa-IR')}] ${apps.length} برنامه یافت شد`)
         } catch (e) {
           console.error('Failed to scan apps:', e)
+          get().addLog(`[${new Date().toLocaleTimeString('fa-IR')}] خطا در اسکن: ${e}`)
         } finally {
           set({ scanning: false })
         }
@@ -106,9 +112,13 @@ export const useAppStore = create<AppState>()(
 
       connect: async () => {
         const { selectedApps, config } = get()
-        if (selectedApps.length === 0) return
+        if (selectedApps.length === 0) {
+          get().addLog(`[${new Date().toLocaleTimeString('fa-IR')}] حداقل یک برنامه انتخاب کنید`)
+          return
+        }
 
         set({ sidecarError: null })
+        get().addLog(`[${new Date().toLocaleTimeString('fa-IR')}] در حال اتصال...`)
         try {
           await invoke('aether_connect', {
             apps: selectedApps,
@@ -116,19 +126,28 @@ export const useAppStore = create<AppState>()(
           })
         } catch (e: any) {
           set({ sidecarError: e?.message || String(e) })
+          get().addLog(`[${new Date().toLocaleTimeString('fa-IR')}] خطا: ${e?.message || e}`)
         }
       },
 
       disconnect: async () => {
+        get().addLog(`[${new Date().toLocaleTimeString('fa-IR')}] در حال قطع اتصال...`)
         try {
           await invoke('aether_disconnect')
         } catch (e) {
           console.error('Disconnect failed:', e)
+          get().addLog(`[${new Date().toLocaleTimeString('fa-IR')}] خطا در قطع: ${e}`)
         }
       },
 
       retryAfterSidecarError: () => {
         set({ sidecarError: null })
+      },
+
+      addLog: (msg: string) => {
+        set(state => ({
+          logs: [...state.logs.slice(-99), msg]
+        }))
       },
 
       _setUnlisten: (fn: UnlistenFn) => set({ _unlisten: fn }),
