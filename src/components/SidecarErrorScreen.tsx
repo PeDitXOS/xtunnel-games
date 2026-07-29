@@ -1,7 +1,5 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 import { AlertTriangle, RefreshCw, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface SidecarErrorScreenProps {
   message: string

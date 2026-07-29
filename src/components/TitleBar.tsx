@@ -1,7 +1,6 @@
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { Minus, X, Maximize2 } from 'lucide-react'
 import { motion } from 'motion/react'
-import { cn } from '@/lib/utils'
 
 export function TitleBar() {
   const win = getCurrentWindow()

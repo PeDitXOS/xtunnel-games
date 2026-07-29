@@ -1,6 +1,6 @@
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { Loader2, Check, AlertTriangle, Wifi, WifiOff } from 'lucide-react'
+import { Loader2, Check, AlertTriangle, WifiOff } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 
 function formatDuration(ms: number): string {
@@ -23,8 +23,7 @@ const MESSAGES: Record<string, string> = {
 
 export function StatusDisplay() {
   const { status } = useAppStore()
-  const phase = status.state
-
+  
   return (
     <div className="flex flex-col items-center gap-3 w-full">
       <motion.div

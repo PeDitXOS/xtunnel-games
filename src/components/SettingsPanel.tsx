@@ -42,7 +42,7 @@ export function SettingsPanel() {
                   </TooltipContent>
                 </Tooltip>
               </label>
-              <Select value={config.protocol} onValueChange={v => setConfig({ protocol: v as any })} disabled={locked}>
+              <Select value={config.protocol} onValueChange={(v: string) => setConfig({ protocol: v as any })} disabled={locked}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="انتخاب پروتکل" />
                 </SelectTrigger>
@@ -64,7 +64,7 @@ export function SettingsPanel() {
                   </TooltipContent>
                 </Tooltip>
               </label>
-              <Select value={config.scanMode} onValueChange={v => setConfig({ scanMode: v as any })} disabled={locked}>
+              <Select value={config.scanMode} onValueChange={(v: string) => setConfig({ scanMode: v as any })} disabled={locked}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="انتخاب حالت" />
                 </SelectTrigger>
@@ -86,7 +86,7 @@ export function SettingsPanel() {
                   </TooltipContent>
                 </Tooltip>
               </label>
-              <Select value={config.ipVersion} onValueChange={v => setConfig({ ipVersion: v as any })} disabled={locked}>
+              <Select value={config.ipVersion} onValueChange={(v: string) => setConfig({ ipVersion: v as any })} disabled={locked}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="انتخاب نسخه IP" />
                 </SelectTrigger>
@@ -110,7 +110,7 @@ export function SettingsPanel() {
               </div>
               <Switch
                 checked={config.quickReconnect}
-                onCheckedChange={v => setConfig({ quickReconnect: v })}
+                onCheckedChange={(v: boolean) => setConfig({ quickReconnect: v })}
                 disabled={locked}
               />
             </div>
