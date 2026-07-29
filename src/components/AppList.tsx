@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { Search, Gamepad2, Globe, MessageSquare, Youtube, FolderOpen, CheckCircle2 } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'

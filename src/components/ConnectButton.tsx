@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { Loader2, Check, AlertTriangle, Wifi, WifiOff } from 'lucide-react'
+import { Loader2, Check, AlertTriangle, WifiOff } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 
 type Phase = 'idle' | 'launching' | 'connecting' | 'connected' | 'reconnecting' | 'disconnecting' | 'error'
@@ -30,8 +30,6 @@ export function ConnectButton() {
   const phase = status.state
   const config = PHASE_CONFIG[phase]
   const Icon = config.icon as React.ReactNode
-  const isTransitioning = phase === 'launching' || phase === 'connecting' || phase === 'reconnecting' || phase === 'disconnecting'
-
   const handleClick = () => {
     if (phase === 'idle' || phase === 'error') {
       connect()

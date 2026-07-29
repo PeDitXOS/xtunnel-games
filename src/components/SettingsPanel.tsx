@@ -1,7 +1,6 @@
 import { useState } from 'react'
-import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { ChevronDown, Settings2, Info, Gamepad2, Globe, Download, MessageSquare, Zap, Shield, ZapOff } from 'lucide-react'
+import { ChevronDown, Settings2, Info } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
