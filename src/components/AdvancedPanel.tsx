@@ -112,7 +112,7 @@ export function AdvancedPanel() {
               </div>
               <Switch
                 checked={config.quickReconnect}
-                onCheckedChange={v => setConfig({ quickReconnect: v })}
+                onCheckedChange={(v: boolean) => setConfig({ quickReconnect: v })}
                 disabled={locked}
               />
             </div>

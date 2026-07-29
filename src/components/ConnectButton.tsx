@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { Power, Loader2, Check, AlertTriangle, Wifi, WifiOff } from 'lucide-react'
+import { Loader2, Check, AlertTriangle, Wifi, WifiOff } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 
 type Phase = 'idle' | 'launching' | 'connecting' | 'connected' | 'reconnecting' | 'disconnecting' | 'error'

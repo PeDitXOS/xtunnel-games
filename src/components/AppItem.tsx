@@ -1,7 +1,6 @@
 import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { Check, Gamepad2, Globe, FolderOpen, Youtube, MessageSquare, Zap } from 'lucide-react'
-import { useAppStore } from '@/store/appStore'
+import { Check, Gamepad2, FolderOpen, Youtube, MessageSquare, Zap } from 'lucide-react'
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   games: <Gamepad2 className="h-4 w-4" />,

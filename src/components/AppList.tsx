@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { Search, ChevronDown, ChevronUp, Gamepad2, Globe, MessageSquare, Youtube, FolderOpen, CheckCircle2 } from 'lucide-react'
+import { Search, Gamepad2, Globe, MessageSquare, Youtube, FolderOpen, CheckCircle2 } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 
 type Category = 'all' | 'games' | 'launchers' | 'media' | 'social' | 'other'
@@ -21,7 +21,6 @@ export function AppList() {
   const { apps, selectedApps, scanning, scanApps, toggleApp } = useAppStore()
   const [category, setCategory] = useState<Category>('all')
   const [search, setSearch] = useState('')
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
 
   const filteredApps = apps
     .filter(app => {
@@ -163,7 +162,7 @@ export function AppList() {
               : 'bg-primary text-primary-foreground hover:bg-primary/90'
           )}
         >
-          {selectedCount === 0 ? 'حداقل یک برنامه انتخاب کنید' : `اتصال و رانکسی ${selectedCount} برنامه`}
+          {selectedCount === 0 ? 'حداقل یک برنامه انتخاب کنید' : `اتصال و روت کردن ${selectedCount} برنامه`}
         </motion.button>
       </div>
     </div>
@@ -177,43 +176,26 @@ interface AppItemProps {
 }
 
 function AppItem({ app, selected, onToggle }: AppItemProps) {
-  const [hovered, setHovered] = useState(false)
-
   return (
     <motion.div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      whileHover={{ y: -1, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ duration: 0.15 }}
       className={cn(
-        'relative flex items-center gap-3 px-3 py-2.5 rounded-xl bg-card border transition-all',
+        'relative flex items-center gap-3 px-3 py-2.5 rounded-xl bg-card border transition-all cursor-pointer',
         selected
           ? 'border-primary/50 bg-primary/5 ring-1 ring-primary/20'
           : 'border-border hover:border-primary/30'
       )}
+      onClick={() => onToggle(app.exeName)}
     >
-      <AnimatePresence mode="wait">
-        {selected && (
-          <motion.div
-            key="check"
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            exit={{ scale: 0, rotate: 180 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground"
-          >
-            <CheckCircle2 className="h-4 w-4" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {app.iconPath && (
-        <img
-          src={app.iconPath}
-          alt={app.name}
-          className="h-10 w-10 rounded-lg object-cover flex-shrink-0"
-          onError={e => { e.currentTarget.style.display = 'none' }}
-        />
-      )}
+      <div className={cn(
+        'flex h-10 w-10 items-center justify-center rounded-lg flex-shrink-0',
+        selected ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'
+      )}>
+        {selected ? <CheckCircle2 className="h-5 w-5" /> : <FolderOpen className="h-5 w-5" />}
+      </div>
 
       <div className="flex-1 min-w-0">
         <p className="font-medium truncate">{app.name}</p>
@@ -221,7 +203,7 @@ function AppItem({ app, selected, onToggle }: AppItemProps) {
       </div>
 
       <motion.button
-        onClick={() => onToggle(app.exeName)}
+        onClick={(e) => { e.stopPropagation(); onToggle(app.exeName); }}
         whileTap={{ scale: 0.9 }}
         className={cn(
           'flex h-9 w-9 items-center justify-center rounded-full transition-colors',
@@ -231,15 +213,7 @@ function AppItem({ app, selected, onToggle }: AppItemProps) {
         )}
         aria-label={selected ? 'حذف از انتخاب' : 'افزودن به انتخاب'}
       >
-        {selected ? (
-          <CheckCircle2 className="h-5 w-5" />
-        ) : (
-          <motion.div
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            className="h-6 w-6 rounded-full border-2 border-current"
-          />
-        )}
+        <CheckCircle2 className="h-5 w-5" />
       </motion.button>
     </motion.div>
   )
@@ -251,5 +225,5 @@ interface AppInfo {
   exeName: string
   exePath: string
   iconPath?: string
-  category: Category
+  category: string
 }
