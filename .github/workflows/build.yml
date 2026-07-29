@@ -136,12 +136,12 @@ jobs:
 
       - name: Download WinDivert
         run: |
-          $windivertUrl = "https://github.com/basil00/Divert/releases/download/v2.1.0/WinDivert-2.1.0.zip"
+          $windivertUrl = "https://github.com/basil00/WinDivert/releases/download/v2.2.2/WinDivert-2.2.2-A.zip"
           $zipPath = "$env:RUNNER_TEMP\windivert.zip"
           Invoke-WebRequest -Uri $windivertUrl -OutFile $zipPath
           Expand-Archive -Path $zipPath -DestinationPath "$env:RUNNER_TEMP\windivert" -Force
-          Copy-Item "$env:RUNNER_TEMP\windivert\x64\WinDivert.dll" "src-tauri\binaries\WinDivert.dll" -Force
-          Copy-Item "$env:RUNNER_TEMP\windivert\x64\WinDivert64.sys" "src-tauri\binaries\WinDivert64.sys" -Force
+          Copy-Item "$env:RUNNER_TEMP\windivert\WinDivert-2.2.2-A\x64\WinDivert.dll" "src-tauri\binaries\WinDivert.dll" -Force
+          Copy-Item "$env:RUNNER_TEMP\windivert\WinDivert-2.2.2-A\x64\WinDivert64.sys" "src-tauri\binaries\WinDivert64.sys" -Force
           Write-Host "WinDivert bundled"
 
       - name: Build Tauri app
