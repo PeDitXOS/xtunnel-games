@@ -17,19 +17,10 @@ const SCREEN_TRANSITION = {
 }
 
 function App() {
-  const { status, sidecarError, retryAfterSidecarError, connect, scanApps, apps, selectedApps, toggleApp, initialize } = useAppStore()
-  const [focused, setFocused] = useState(true)
+  const { sidecarError, retryAfterSidecarError, connect, scanApps, apps, selectedApps, toggleApp, initialize } = useAppStore()
 
   useEffect(() => {
     initialize()
-    const onFocus = () => setFocused(true)
-    const onBlur = () => setFocused(false)
-    window.addEventListener('focus', onFocus)
-    window.addEventListener('blur', onBlur)
-    return () => {
-      window.removeEventListener('focus', onFocus)
-      window.removeEventListener('blur', onBlur)
-    }
   }, [initialize])
 
   return (
@@ -75,7 +66,14 @@ function App() {
   )
 }
 
-function AppListSection({ apps, selectedApps, onToggle, onScan }) {
+interface AppListSectionProps {
+  apps: Array<{ exeName: string; name: string; category: string }>
+  selectedApps: string[]
+  onToggle: (exeName: string) => void
+  onScan: () => void
+}
+
+function AppListSection({ apps, selectedApps, onToggle, onScan }: AppListSectionProps) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'all' | 'games' | 'launchers' | 'media' | 'social' | 'other'>('all')
   const [showOnlySelected, setShowOnlySelected] = useState(false)
@@ -215,19 +213,15 @@ interface AppItemProps {
   app: {
     exeName: string
     name: string
-    path: string
+    category: string
     iconPath?: string
-    category: 'games' | 'launchers' | 'media' | 'social' | 'other'
-    pid?: number
   }
   selected: boolean
-  onToggle: () => void
+  onToggle: (exeName: string) => void
 }
 
 function AppItem({ app, selected, onToggle }: AppItemProps) {
-  const [hovered, setHovered] = useState(false)
-
-  const CATEGORY_ICONS = {
+  const CATEGORY_ICONS: Record<string, React.ReactNode> = {
     games: <Gamepad2 className="h-4 w-4" />,
     launchers: <FolderOpen className="h-4 w-4" />,
     media: <Youtube className="h-4 w-4" />,
@@ -245,10 +239,8 @@ function AppItem({ app, selected, onToggle }: AppItemProps) {
 
   return (
     <motion.div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       whileHover={{ y: -1, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
-      onClick={onToggle}
+      onClick={() => onToggle(app.exeName)}
       className={cn(
         'relative flex items-center gap-3 p-3 rounded-xl border transition-all',
         selected
