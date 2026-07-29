@@ -126,7 +126,7 @@ jobs:
 
       - name: Download wintun.dll
         run: |
-          $wintunUrl = "https://github.com/WireGuard/wintun/releases/download/0.14.1/wintun-0.14.1.zip"
+          $wintunUrl = "https://www.wintun.net/builds/wintun-0.14.1.zip"
           $zipPath = "$env:RUNNER_TEMP\wintun.zip"
           Invoke-WebRequest -Uri $wintunUrl -OutFile $zipPath
           Expand-Archive -Path $zipPath -DestinationPath "$env:RUNNER_TEMP\wintun" -Force
