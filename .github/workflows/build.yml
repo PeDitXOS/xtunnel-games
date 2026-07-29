@@ -36,10 +36,8 @@ jobs:
 
       - run: npm run build
 
-      - name: Cargo check (Windows target)
-        run: |
-          cd src-tauri
-          cargo check --target x86_64-pc-windows-msvc
+      # Cargo check skipped — ring crate needs MSVC toolchain.
+      # Actual Rust compilation happens in the Windows build job.
 
   build-windows:
     name: Build Windows (x64)
