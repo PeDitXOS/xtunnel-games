@@ -1,34 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { ChevronDown, Settings2, Info, Gamepad2, Globe, Download, MessageSquare, Zap } from 'lucide-react'
+import { ChevronDown, Settings2, Info } from 'lucide-react'
 import { useAppStore } from '@/store/appStore'
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-
-const PROTOCOL_OPTIONS = [
-  { value: 'auto', label: 'خودکار (پیشنهادی)' },
-  { value: 'masque', label: 'MASQUE (HTTP/3)' },
-  { value: 'wireguard', label: 'WireGuard' },
-  { value: 'gool', label: 'WARP-in-WARP (gool)' },
-]
-
-const SCAN_MODE_OPTIONS = [
-  { value: 'turbo', label: 'Turbo (سریع‌ترین)' },
-  { value: 'balanced', label: 'Balanced (متعادل)' },
-  { value: 'thorough', label: 'Thorough (دقیق)' },
-  { value: 'stealth', label: 'Stealth (مخفی‌ترین)' },
-]
-
-const IP_VERSION_OPTIONS = [
-  { value: 'v4', label: 'IPv4' },
-  { value: 'v6', label: 'IPv6' },
-  { value: 'both', label: 'هر دو' },
-]
+import { PROTOCOL_OPTIONS, SCAN_MODE_OPTIONS, IP_VERSION_OPTIONS } from './constants'
 
 export function AdvancedPanel() {
   const { config, setConfig, status, logs } = useAppStore()
@@ -60,11 +40,11 @@ export function AdvancedPanel() {
                     <Info className="h-3.5 w-3.5" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    MASQUETعله‌سی است که ترافیک را به صورت HTTPS نشان می‌دهد. WireGuard سبک‌تر و سریع‌تر است. gool دو تونل WireGuard تودرتو می‌سازد.
+                    MASQUE ترافیک را HTTPS نشان می‌دهد. WireGuard سبک‌تر. gool دو تونل تودرتو.
                   </TooltipContent>
                 </Tooltip>
               </label>
-              <Select value={config.protocol} onValueChange={v => setConfig({ protocol: v as any })} disabled={locked}>
+              <Select value={config.protocol} onValueChange={(v: string) => setConfig({ protocol: v as any })} disabled={locked}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="انتخاب پروتکل" />
                 </SelectTrigger>
@@ -82,11 +62,11 @@ export function AdvancedPanel() {
                 <Tooltip>
                   <TooltipTrigger asChild><Info className="h-3.5 w-3.5" /></TooltipTrigger>
                   <TooltipContent>
-                    Turbo: سریع‌ترین اما بیشترین ترافیک probe. Balanced: پیش‌فرض مناسب. Thorough: کامل‌تر. Stealth: مخفی‌ترین.
+                    Turbo سریع‌ترین. Balanced پیش‌فرض. Thorough دقیق‌تر. Stealth مخفی‌ترین.
                   </TooltipContent>
                 </Tooltip>
               </label>
-              <Select value={config.scanMode} onValueChange={v => setConfig({ scanMode: v as any })} disabled={locked}>
+              <Select value={config.scanMode} onValueChange={(v: string) => setConfig({ scanMode: v as any })} disabled={locked}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="انتخاب حالت" />
                 </SelectTrigger>
@@ -104,11 +84,11 @@ export function AdvancedPanel() {
                 <Tooltip>
                   <TooltipTrigger asChild><Info className="h-3.5 w-3.5" /></TooltipTrigger>
                   <TooltipContent>
-                    کدام خانواده آدرس برای یافتن مسیر استفاده شود. IPv4 پیش‌فرض امن است.
+                    IPv4 پیش‌فرض امن است.
                   </TooltipContent>
                 </Tooltip>
               </label>
-              <Select value={config.ipVersion} onValueChange={v => setConfig({ ipVersion: v as any })} disabled={locked}>
+              <Select value={config.ipVersion} onValueChange={(v: string) => setConfig({ ipVersion: v as any })} disabled={locked}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="انتخاب نسخه IP" />
                 </SelectTrigger>
@@ -126,7 +106,7 @@ export function AdvancedPanel() {
                 <Tooltip>
                   <TooltipTrigger asChild><Info className="h-3.5 w-3.5" /></TooltipTrigger>
                   <TooltipContent>
-                    آخرین گیت‌وی کارآمد را ذخیره کرده و در اتصال بعدی ابتدا آن را تست می‌کند، اگر کار کند اسکن کامل را رد می‌کند.
+                    آخرین گیت‌وی را ذخیره و در اتصال بعدی ابتدا تست می‌کند.
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -160,6 +140,3 @@ export function AdvancedPanel() {
     </TooltipProvider>
   )
 }
-
-// Add imports at bottom
-import { PROTOCOL_OPTIONS, SCAN_MODE_OPTIONS, IP_VERSION_OPTIONS } from './constants'

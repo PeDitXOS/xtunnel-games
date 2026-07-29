@@ -221,15 +221,7 @@ interface AppItemProps {
 }
 
 function AppItem({ app, selected, onToggle }: AppItemProps) {
-  const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-    games: <Gamepad2 className="h-4 w-4" />,
-    launchers: <FolderOpen className="h-4 w-4" />,
-    media: <Youtube className="h-4 w-4" />,
-    social: <MessageSquare className="h-4 w-4" />,
-    other: <Zap className="h-4 w-4" />,
-  }
-
-  const CATEGORY_LABELS = {
+  const CATEGORY_LABELS: Record<string, string> = {
     games: 'بازی',
     launchers: 'لانچر',
     media: 'مدیا',
