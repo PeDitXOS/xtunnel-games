@@ -69,6 +69,7 @@ function App() {
               </aside>
             </motion.div>
           )}
+        </AnimatePresence>
       </div>
     </div>
   )
