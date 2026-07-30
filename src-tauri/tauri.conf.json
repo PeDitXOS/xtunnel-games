@@ -61,7 +61,7 @@
       "nsis": {
         "installMode": "both",
         "displayLanguageSelector": true,
-        "installerHooks": "../installer.nsh"
+        "installerHooks": "installer.nsh"
       }
     }
   },
