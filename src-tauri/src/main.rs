@@ -37,9 +37,8 @@ pub fn run() {
 #[cfg(target_os = "windows")]
 fn setup_dll_path() {
     use std::ffi::CString;
-    use std::ffi::c_void;
 
-    extern "system" {
+    unsafe extern "system" {
         fn AddDllDirectory(lpPathName: *const u16) -> *mut c_void;
     }
 
