@@ -34,21 +34,39 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-fn main() {
-    // Add exe directory to DLL search path so Windows finds bundled DLLs
-    // (WinDivert.dll, wintun.dll, etc.) without needing them in system PATH
-    #[cfg(target_os = "windows")]
-    {
-        if let Ok(exe) = std::env::current_exe() {
-            if let Some(dir) = exe.parent() {
-                if let Ok(current_path) = std::env::var("PATH") {
-                    let new_path = format!("{};{}", dir.display(), current_path);
-                    // SAFETY: setting PATH at process start before any threads
-                    unsafe { std::env::set_var("PATH", &new_path) };
+#[cfg(target_os = "windows")]
+fn setup_dll_path() {
+    use std::ffi::CString;
+    use std::ffi::c_void;
+
+    extern "system" {
+        fn SetDllDirectoryA(lpPathName: *const i8) -> i32;
+    }
+
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            if let Ok(c_dir) = CString::new(dir.to_string_lossy().as_bytes()) {
+                unsafe {
+                    SetDllDirectoryA(c_dir.as_ptr());
+                }
+            }
+            // Also try resources/ subdirectory (Tauri bundles resources there)
+            let res_dir = dir.join("resources");
+            if res_dir.exists() {
+                if let Ok(c_res) = CString::new(res_dir.to_string_lossy().as_bytes()) {
+                    unsafe {
+                        SetDllDirectoryA(c_res.as_ptr());
+                    }
                 }
             }
         }
     }
+}
 
+#[cfg(not(target_os = "windows"))]
+fn setup_dll_path() {}
+
+fn main() {
+    setup_dll_path();
     run();
 }
