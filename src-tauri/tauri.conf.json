@@ -51,9 +51,7 @@
         "silent": true
       },
       "nsis": {
-        "allowToChangeInstallDirectory": true,
-        "oneClick": false,
-        "perMachine": true,
+        "installMode": "both",
         "displayLanguageSelector": true
       }
     }
