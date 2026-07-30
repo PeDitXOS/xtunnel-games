@@ -16,7 +16,8 @@ pub use providers::*;
 /// Resolve a bundled binary path from the resources directory.
 /// Falls back to bare name (for dev mode or PATH).
 pub fn resolve_binary(app: &tauri::AppHandle, name: &str) -> std::path::PathBuf {
-    if let Some(res_dir) = tauri::api::path::resource_dir(app.handle(), &app.env()) {
+    use tauri::Manager;
+    if let Ok(res_dir) = app.path().resource_dir() {
         let bundled = res_dir.join(name);
         if bundled.exists() {
             return bundled;
