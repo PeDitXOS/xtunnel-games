@@ -22,8 +22,6 @@ pub fn run() {
             commands::set_selected_apps,
             commands::get_config,
             commands::set_config,
-            providers::get_available_providers,
-            providers::get_status,
             updater::check_updates,
         ])
         .setup(|app| {

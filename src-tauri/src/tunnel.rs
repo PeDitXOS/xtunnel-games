@@ -4,15 +4,16 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tauri::{AppHandle, Emitter, State};
 use tokio::time::{sleep, Duration};
+use windivert::{WinDivert, WinDivertFlags, WinDivertLayer};
 
-pub struct WinDivert {
-    handle: windivert::WinDivertHandle,
+pub struct WinDivertTunnel {
+    handle: WinDivert,
     pids: Vec<u32>,
     proxy_port: u16,
     running: Arc<AtomicBool>,
 }
 
-impl WinDivert {
+impl WinDivertTunnel {
     pub fn new(pids: Vec<u32>, proxy_port: u16) -> Result<Self> {
         let pids_str = pids
             .iter()
@@ -25,11 +26,11 @@ impl WinDivert {
             pids_str, proxy_port
         );
 
-        let handle = windivert::WinDivertHandle::open(
+        let handle = WinDivert::new(
             &filter,
-            windivert::Layer::Network,
+            WinDivertLayer::Network,
             0,
-            windivert::Flags::empty(),
+            WinDivertFlags::empty(),
         )
         .map_err(|e| crate::error::XtunnelError::WinDivert(e.to_string()))?;
 
@@ -43,17 +44,17 @@ impl WinDivert {
 
     pub fn start(&self) -> Result<()> {
         let running = self.running.clone();
-        let handle = self.handle.clone();
 
         std::thread::spawn(move || {
-            let mut packet = vec![0u8; 65535];
-            let mut addr = windivert::WinDivertAddress::default();
-
-            while running.load(Ordering::Relaxed) {
-                match handle.recv(&mut packet, &mut addr) {
-                    Ok(len) => {
-                        if len > 0 {
-                            let _ = handle.send(&packet[..len], &addr);
+            // ponytail: WinDivert recv needs buffer_size param, not raw buffer+addr
+            loop {
+                if !running.load(Ordering::Relaxed) {
+                    break;
+                }
+                match self.handle.recv(65535) {
+                    Ok(packet) => {
+                        if !packet.data.is_empty() {
+                            let _ = self.handle.send(packet);
                         }
                     }
                     Err(e) => {
@@ -71,7 +72,7 @@ impl WinDivert {
 
     pub fn stop(&mut self) {
         self.running.store(false, Ordering::Relaxed);
-        let _ = self.handle.close();
+        let _ = self.handle.close(windivert::CloseAction::Nothing);
     }
 }
 
@@ -143,12 +144,12 @@ pub async fn start_tunnel(
     sleep(Duration::from_secs(3)).await;
 
     // 3. Start WinDivert with PID filter
-    let mut windivert = WinDivert::new(pids.clone(), proxy_port)?;
-    windivert.start()?;
+    let mut windivert_tunnel = WinDivertTunnel::new(pids.clone(), proxy_port)?;
+    windivert_tunnel.start()?;
     // ponytail: WinDivert handle needs to live as long as the tunnel.
     // Currently it's dropped here which closes the handle.
     // Upgrade: store in AppState.windivert field.
-    std::mem::forget(windivert); // leaked intentionally — will be cleaned up when process dies
+    std::mem::forget(windivert_tunnel); // leaked intentionally — will be cleaned up when process dies
 
     *state.connected_pids.lock() = pids.clone();
 

@@ -2,7 +2,7 @@ use crate::error::Result;
 use crate::models::AppInfo;
 use std::collections::HashSet;
 use std::path::Path;
-use sysinfo::{Pid, ProcessExt, System, SystemExt};
+use sysinfo::{Pid, System};
 
 const GAME_KEYWORDS: &[&str] = &[
     "game", "launcher", "steam", "epic", "battle.net", "origin", "ea", "ubisoft", "gog", 
