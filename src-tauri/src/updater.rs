@@ -13,7 +13,7 @@ pub struct UpdateInfo {
 }
 
 #[tauri::command]
-pub async fn check_updates(app: AppHandle) -> Result<UpdateInfo> {
+pub async fn check_updates(app: AppHandle) -> Result<UpdateInfo, String> {
     let current_version = env!("CARGO_PKG_VERSION");
     
     // Fetch latest release from GitHub
