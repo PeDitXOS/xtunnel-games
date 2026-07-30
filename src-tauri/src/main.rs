@@ -35,5 +35,20 @@ pub fn run() {
 }
 
 fn main() {
+    // Add exe directory to DLL search path so Windows finds bundled DLLs
+    // (WinDivert.dll, wintun.dll, etc.) without needing them in system PATH
+    #[cfg(target_os = "windows")]
+    unsafe {
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(dir) = exe.parent() {
+                use std::ffi::CString;
+                use winapi::um::libloaderapi::SetDllDirectoryA;
+                if let Ok(c_dir) = CString::new(dir.to_str().unwrap_or_default()) {
+                    SetDllDirectoryA(c_dir.as_ptr());
+                }
+            }
+        }
+    }
+
     run();
 }
