@@ -100,7 +100,6 @@ impl ProviderInfo {
     }
 }
 
-#[tauri::command]
 pub async fn get_available_providers() -> Result<Vec<ProviderInfo>> {
     Ok(["aether", "v2ray", "wireguard", "openvpn", "socks"]
         .iter()
@@ -121,7 +120,6 @@ pub async fn disconnect(state: State<'_, crate::AppState>) -> Result<()> {
     Ok(())
 }
 
-#[tauri::command]
 pub async fn get_status(state: State<'_, crate::AppState>) -> Result<ConnectionStatus> {
     let pids = state.connected_pids.lock().clone();
     if pids.is_empty() {
