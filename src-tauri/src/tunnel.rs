@@ -123,7 +123,7 @@ pub async fn start_tunnel(
     let config_path = std::env::temp_dir().join("xtunnel-tunnel.json");
     tokio::fs::write(&config_path, &singbox_config).await?;
 
-    let singbox_path = crate::resolve_binary(app.handle(), "sing-box.exe");
+    let singbox_path = crate::resolve_binary(app, "sing-box.exe");
     let mut cmd = tokio::process::Command::new(singbox_path)
         .args(["run", "-c", config_path.to_str().unwrap()])
         .stdout(std::process::Stdio::piped())
