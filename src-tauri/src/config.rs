@@ -3,6 +3,7 @@ use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use tauri::{AppHandle, Manager, State};
+use tauri_plugin_store::StoreExt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
@@ -51,7 +52,7 @@ impl ConfigManager {
 
     pub fn set(&self, config: AppConfig) -> Result<()> {
         *self.cache.lock() = config.clone();
-        self.store.lock().set("config", serde_json::to_value(config)?)?;
+        self.store.lock().set("config", serde_json::to_value(config)?);
         self.store.lock().save()?;
         Ok(())
     }

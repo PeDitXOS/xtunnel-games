@@ -199,13 +199,13 @@ fn categorize(name: &str, exe: &str) -> String {
 
 pub async fn resolve_pids(exe_names: &[String]) -> Result<Vec<u32>> {
     let mut sys = System::new_all();
-    sys.refresh_processes(sysinfo::ProcessesToUpdate::All, true);
+    sys.refresh_processes();
 
     let mut pids = Vec::new();
     let target_names: HashSet<String> = exe_names.iter().map(|s| s.to_lowercase()).collect();
 
     for (pid, proc_) in sys.processes() {
-        let exe_name = proc_.name().to_string_lossy().to_lowercase();
+        let exe_name = proc_.name().to_lowercase();
         if target_names.contains(&exe_name) {
             pids.push(pid.as_u32());
         }

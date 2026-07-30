@@ -73,7 +73,7 @@ pub async fn check_updates(app: AppHandle) -> Result<UpdateInfo> {
     })
 }
 
-fn version_compare(a: &str, b: &str) -> Result<bool, Box<dyn std::error::Error>> {
+fn version_compare(a: &str, b: &str) -> std::result::Result<bool, Box<dyn std::error::Error>> {
     let a_parts: Vec<u32> = a.split('.').map(|s| s.parse().unwrap_or(0)).collect();
     let b_parts: Vec<u32> = b.split('.').map(|s| s.parse().unwrap_or(0)).collect();
     

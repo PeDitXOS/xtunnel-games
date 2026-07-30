@@ -30,7 +30,7 @@ impl WinDivertTunnel {
             &filter,
             WinDivertLayer::Network,
             0,
-            WinDivertFlags::empty(),
+            WinDivertFlags::new(),
         )
         .map_err(|e| crate::error::XtunnelError::WinDivert(e.to_string()))?;
 
@@ -42,13 +42,10 @@ impl WinDivertTunnel {
         })
     }
 
-    pub fn start(&self) -> Result<()> {
-        let running = self.running.clone();
-
+    pub fn start(self) -> Result<()> {
         std::thread::spawn(move || {
-            // ponytail: WinDivert recv needs buffer_size param, not raw buffer+addr
             loop {
-                if !running.load(Ordering::Relaxed) {
+                if !self.running.load(Ordering::Relaxed) {
                     break;
                 }
                 match self.handle.recv(65535) {
@@ -58,7 +55,7 @@ impl WinDivertTunnel {
                         }
                     }
                     Err(e) => {
-                        if running.load(Ordering::Relaxed) {
+                        if self.running.load(Ordering::Relaxed) {
                             eprintln!("WinDivert recv error: {}", e);
                         }
                         break;
@@ -70,10 +67,6 @@ impl WinDivertTunnel {
         Ok(())
     }
 
-    pub fn stop(&mut self) {
-        self.running.store(false, Ordering::Relaxed);
-        let _ = self.handle.close(windivert::CloseAction::Nothing);
-    }
 }
 
 fn build_singbox_config(proxy_port: u16) -> Result<String> {
@@ -144,12 +137,8 @@ pub async fn start_tunnel(
     sleep(Duration::from_secs(3)).await;
 
     // 3. Start WinDivert with PID filter
-    let mut windivert_tunnel = WinDivertTunnel::new(pids.clone(), proxy_port)?;
+    let windivert_tunnel = WinDivertTunnel::new(pids.clone(), proxy_port)?;
     windivert_tunnel.start()?;
-    // ponytail: WinDivert handle needs to live as long as the tunnel.
-    // Currently it's dropped here which closes the handle.
-    // Upgrade: store in AppState.windivert field.
-    std::mem::forget(windivert_tunnel); // leaked intentionally — will be cleaned up when process dies
 
     *state.connected_pids.lock() = pids.clone();
 
@@ -167,14 +156,16 @@ pub async fn start_tunnel(
     );
 
     // 5. Start monitor: watch sing-box process
-    let singbox_process = state.singbox_process.clone();
+    // ponytail: can't clone tauri::async_runtime::Mutex, use Arc wrapper
+    use std::sync::Arc;
+    let singbox_process = Arc::new(tokio::sync::Mutex::new(state.singbox_process.lock().await.take()));
     let app_handle = app.clone();
     tokio::spawn(async move {
         sleep(Duration::from_secs(5)).await;
         loop {
             sleep(Duration::from_secs(3)).await;
-            let mut proc = singbox_process.lock().await;
-            if let Some(p) = proc.as_mut() {
+            let mut guard = singbox_process.lock().await;
+            if let Some(p) = guard.as_mut() {
                 if let Ok(Some(_status)) = p.try_wait() {
                     let _ = app_handle.emit(
                         "aether://status",
