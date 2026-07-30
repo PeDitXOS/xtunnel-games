@@ -1,4 +1,3 @@
-use crate::error::Result;
 use serde::{Deserialize, Serialize};
 use tauri::AppHandle;
 
@@ -13,17 +12,16 @@ pub struct UpdateInfo {
 }
 
 #[tauri::command]
-pub async fn check_updates(app: AppHandle) -> Result<UpdateInfo, String> {
+pub async fn check_updates(app: AppHandle) -> std::result::Result<UpdateInfo, String> {
     let current_version = env!("CARGO_PKG_VERSION");
     
-    // Fetch latest release from GitHub
     let client = reqwest::Client::new();
     let response = client
         .get("https://api.github.com/repos/peditxos/xtunnel-games/releases/latest")
         .header("User-Agent", "XtunnelGames")
         .send()
         .await
-        .map_err(|e| crate::error::XtunnelError::Other(e.to_string()))?;
+        .map_err(|e| e.to_string())?;
 
     if !response.status().is_success() {
         return Ok(UpdateInfo {
@@ -52,12 +50,11 @@ pub async fn check_updates(app: AppHandle) -> Result<UpdateInfo, String> {
     }
 
     let release: GitHubRelease = response.json().await
-        .map_err(|e| crate::error::XtunnelError::Other(e.to_string()))?;
+        .map_err(|e| e.to_string())?;
 
     let latest_version = release.tag_name.trim_start_matches('v');
     let has_update = version_compare(latest_version, current_version).unwrap_or(false);
 
-    // Find the Windows installer asset
     let download_url = release.assets.iter()
         .find(|a| a.name.ends_with(".exe") || a.name.ends_with(".msi"))
         .map(|a| a.browser_download_url.clone())
