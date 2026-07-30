@@ -51,9 +51,6 @@
         "silent": true
       },
       "nsis": {
-        "installerIcon": "icons/icon.ico",
-        "installerHeaderIcon": "icons/icon.ico",
-        "licenseFile": null,
         "allowToChangeInstallDirectory": true,
         "oneClick": false,
         "perMachine": true,
