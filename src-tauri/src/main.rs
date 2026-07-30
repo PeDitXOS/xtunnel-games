@@ -37,24 +37,28 @@ pub fn run() {
 #[cfg(target_os = "windows")]
 fn setup_dll_path() {
     use std::ffi::CString;
+    use std::ffi::c_void;
 
-    unsafe extern "system" {
-        fn SetDllDirectoryA(lpPathName: *const i8) -> i32;
+    extern "system" {
+        fn AddDllDirectory(lpPathName: *const u16) -> *mut c_void;
     }
 
     if let Ok(exe) = std::env::current_exe() {
         if let Some(dir) = exe.parent() {
+            // Add exe directory
             if let Ok(c_dir) = CString::new(dir.to_string_lossy().as_bytes()) {
+                let wide: Vec<u16> = c_dir.to_string_lossy().encode_utf16().chain(std::iter::once(0)).collect();
                 unsafe {
-                    SetDllDirectoryA(c_dir.as_ptr());
+                    AddDllDirectory(wide.as_ptr());
                 }
             }
             // Also try resources/ subdirectory (Tauri bundles resources there)
             let res_dir = dir.join("resources");
             if res_dir.exists() {
                 if let Ok(c_res) = CString::new(res_dir.to_string_lossy().as_bytes()) {
+                    let wide: Vec<u16> = c_res.to_string_lossy().encode_utf16().chain(std::iter::once(0)).collect();
                     unsafe {
-                        SetDllDirectoryA(c_res.as_ptr());
+                        AddDllDirectory(wide.as_ptr());
                     }
                 }
             }
