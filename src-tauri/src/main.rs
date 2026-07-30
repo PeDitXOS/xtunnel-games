@@ -41,15 +41,8 @@ fn main() {
     {
         if let Ok(exe) = std::env::current_exe() {
             if let Some(dir) = exe.parent() {
-                // Add exe dir AND resources/ subdirectory to PATH
-                // Tauri bundles resources in a subdirectory next to the exe
                 if let Ok(current_path) = std::env::var("PATH") {
-                    let new_path = format!(
-                        "{};{}\\resources;{}",
-                        dir.display(),
-                        dir.display(),
-                        current_path
-                    );
+                    let new_path = format!("{};{}", dir.display(), current_path);
                     // SAFETY: setting PATH at process start before any threads
                     unsafe { std::env::set_var("PATH", &new_path) };
                 }
