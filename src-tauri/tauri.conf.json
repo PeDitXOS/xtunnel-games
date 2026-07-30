@@ -41,6 +41,16 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "externalBin": [
+      "binaries/aether",
+      "binaries/sing-box",
+      "binaries/xray"
+    ],
+    "resources": [
+      "binaries/wintun.dll",
+      "binaries/WinDivert.dll",
+      "binaries/WinDivert64.sys"
+    ],
     "windows": {
       "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
