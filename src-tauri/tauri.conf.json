@@ -41,12 +41,10 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": [
-      "binaries/aether",
-      "binaries/sing-box",
-      "binaries/xray"
-    ],
     "resources": [
+      "binaries/aether.exe",
+      "binaries/sing-box.exe",
+      "binaries/xray.exe",
       "binaries/wintun.dll",
       "binaries/WinDivert.dll",
       "binaries/WinDivert64.sys"

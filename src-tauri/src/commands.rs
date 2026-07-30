@@ -30,7 +30,8 @@ pub async fn aether_connect(
     }
 
     // Start aether.exe
-    let mut cmd = tokio::process::Command::new("aether.exe");
+    let aether_path = crate::resolve_binary(&app, "aether.exe");
+    let mut cmd = tokio::process::Command::new(aether_path);
     cmd.args(config.to_cli_args())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())

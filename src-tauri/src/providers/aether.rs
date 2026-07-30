@@ -87,7 +87,8 @@ impl Provider for AetherProvider {
         *self.config.lock() = Some(cfg.clone());
 
         // Start aether.exe
-        let mut cmd = Command::new("aether.exe");
+        let aether_path = crate::resolve_binary(&app, "aether.exe");
+        let mut cmd = Command::new(aether_path);
         cmd.args(cfg.to_cli_args())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())

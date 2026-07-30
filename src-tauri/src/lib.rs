@@ -13,6 +13,18 @@ pub use error::XtunnelError;
 pub use models::*;
 pub use providers::*;
 
+/// Resolve a bundled binary path from the resources directory.
+/// Falls back to bare name (for dev mode or PATH).
+pub fn resolve_binary(app: &tauri::AppHandle, name: &str) -> std::path::PathBuf {
+    if let Some(res_dir) = tauri::api::path::resource_dir(app.handle(), &app.env()) {
+        let bundled = res_dir.join(name);
+        if bundled.exists() {
+            return bundled;
+        }
+    }
+    std::path::PathBuf::from(name)
+}
+
 pub struct AppState {
     pub provider_process: tokio::sync::Mutex<Option<tokio::process::Child>>,
     pub singbox_process: tokio::sync::Mutex<Option<tokio::process::Child>>,

@@ -102,7 +102,8 @@ impl Provider for V2RayProvider {
         let config_path = std::env::temp_dir().join("xtunnel-v2ray.json");
         tokio::fs::write(&config_path, singbox_config).await?;
 
-        let mut cmd = Command::new("sing-box.exe")
+        let singbox_path = crate::resolve_binary(&app, "sing-box.exe");
+        let mut cmd = Command::new(singbox_path)
             .args(["run", "-c", config_path.to_str().unwrap()])
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
