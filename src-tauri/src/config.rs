@@ -29,7 +29,7 @@ impl Default for AppConfig {
 }
 
 pub struct ConfigManager {
-    store: Arc<Mutex<tauri_plugin_store::Store<tauri::Wry>>>,
+    store: Arc<tauri_plugin_store::Store<tauri::Wry>>,
     cache: Arc<Mutex<AppConfig>>,
 }
 
@@ -41,7 +41,7 @@ impl ConfigManager {
             .unwrap_or_default();
         
         Ok(Self {
-            store: Arc::new(Mutex::new(store)),
+            store,
             cache: Arc::new(Mutex::new(cache)),
         })
     }
@@ -52,8 +52,8 @@ impl ConfigManager {
 
     pub fn set(&self, config: AppConfig) -> Result<()> {
         *self.cache.lock() = config.clone();
-        self.store.lock().set("config", serde_json::to_value(config)?);
-        self.store.lock().save()?;
+        self.store.set("config", serde_json::to_value(config)?);
+        self.store.save()?;
         Ok(())
     }
 

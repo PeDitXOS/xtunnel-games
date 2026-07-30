@@ -156,7 +156,7 @@ impl Provider for AetherProvider {
 
     async fn disconnect(&self, _state: tauri::State<'_, crate::AppState>) -> Result<()> {
         let mut proc = self.process.lock().await;
-        if let Some(p) = proc.take() {
+        if let Some(mut p) = proc.take() {
             let _ = p.kill().await;
         }
         Ok(())
