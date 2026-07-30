@@ -43,7 +43,8 @@ fn main() {
             if let Some(dir) = exe.parent() {
                 if let Ok(current_path) = std::env::var("PATH") {
                     let new_path = format!("{};{}", dir.display(), current_path);
-                    std::env::set_var("PATH", &new_path);
+                    // SAFETY: setting PATH at process start before any threads
+                    unsafe { std::env::set_var("PATH", &new_path) };
                 }
             }
         }
